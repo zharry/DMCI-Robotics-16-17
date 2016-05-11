@@ -26,6 +26,7 @@
   */
 void initializeIO() {
 	test();
+	test();
 }
 
 /**

@@ -28,9 +28,26 @@
  *
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
+
+// ------ Robot Status Macros -------
+/* Stores the Robot status
+ * 0 - Autonomous
+ * 1 - Field controller online
+ * 2 - Field controller enabled
+ * 3 - Field controller online and field controller enabled
+ */
+struct ROBOT_STATUS
+{
+	int AUTO = 0;
+	int ONLINE = 1;
+	int ENABLED = 2;
+} RS;
+
+
+
 void operatorControl() {
 	// Update Team Name if not yet done already
-	setTeamName("");
+	setTeamName(TEAMNAME);
 
 	/* Stores which joysticks are connected
 	 * 0 - None
@@ -44,22 +61,17 @@ void operatorControl() {
 	if (isJoystickConnected(2))
 		joystickStatus += 2;
 
-	/* Stores the Robot state
-	 * 0 - Autonomous
-	 * 1 - Field controller online
-	 * 2 - Field controller enabled
-	 * 3 - Field controller online and robot enabled
-	 */
-	int robotStatus = 0;
-	if (isOnline())
-		robotStatus += 1;
-	if (isEnabled())
-		robotStatus += 2;
-	if (isAutonomous())
-		robotStatus = 0;
+	int robotStatus = RS.AUTO;
+	if(!isAutonomous())
+	{
+		if (isOnline())
+			robotStatus |= RS.ONLINE;
+		if (isEnabled())
+			robotStatus |= RS.ENABLED;
+	}
 
 	// Safe checking to avoid disqualification
-	while (robotStatus >= 2) {
+	while (robotStatus | RS.ENABLED) {
 		if (joystickStatus == 3) {
 			// Both Joysticks 1 and 2 are connected and can be referenced
 		} else if (joystickStatus == 0) {

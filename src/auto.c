@@ -28,5 +28,5 @@
 */
 void autonomous() {
 	// Update Team Name if not yet done already
-	setTeamName("");
+	setTeamName(TEAMNAME);
 }

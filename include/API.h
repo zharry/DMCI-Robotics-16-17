@@ -49,6 +49,10 @@
 extern "C" {
 #endif
 
+// ------------------------ Global Variables -------------------------
+
+const char * TEAMNAME = " ";
+
 // -------------------- VEX competition functions --------------------
 
 /**

@@ -15,8 +15,7 @@
  * Purdue Robotics OS contains FreeRTOS (http://www.freertos.org) whose source code may be obtained from http://sourceforge.net/projects/freertos/files/ or on request.
  ********************************************************************************/
 
-#include "main.h"
-
+#include "../include/API.h"
 
 /**
  * Runs the user operator control code.
@@ -30,8 +29,50 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl() {
-	while (true)
-	{
-		delay(25);
+	// Update Team Name if not yet done already
+	setTeamName("");
+
+	/* Stores which joysticks are connected
+	 * 0 - None
+	 * 1 - Only Joystick 1
+	 * 2 - Only Joystick 2
+	 * 3 - Both Josticks 1 and 2
+	 */
+	int joystickStatus = 0;
+	if (isJoystickConnected(1))
+		joystickStatus += 1;
+	if (isJoystickConnected(2))
+		joystickStatus += 2;
+
+	/* Stores the Robot state
+	 * 0 - Autonomous
+	 * 1 - Field controller online
+	 * 2 - Field controller enabled
+	 * 3 - Field controller online and robot enabled
+	 */
+	int robotStatus = 0;
+	if (isOnline())
+		robotStatus += 1;
+	if (isEnabled())
+		robotStatus += 2;
+	if (isAutonomous())
+		robotStatus = 0;
+
+	// Safe checking to avoid disqualification
+	while (robotStatus >= 2) {
+		if (joystickStatus == 3) {
+			// Both Joysticks 1 and 2 are connected and can be referenced
+		} else if (joystickStatus == 0) {
+			// No Joysticks connected, for debugging operator controlled
+		} else {
+			/* One of Josystick 1 or 2 is connected,
+			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
+			 * as the numbers assigned match up
+			 */
+			motorSet(1, joystickGetAnalog(joystickStatus, 1));
+		}
 	}
+
+// Re-do entire process if it failed to start
+	operatorControl();
 }

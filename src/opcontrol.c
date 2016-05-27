@@ -75,6 +75,9 @@ void operatorControl() {
 
 	// Safe checking to avoid disqualification
 	while (robotStatus | RS.ENABLED) {
+		// Local Variable Definitions
+		int leftX, leftY, rightX;
+
 		if (joystickStatus == 3) {
 			// Both Joysticks 1 and 2 are connected and can be referenced
 		} else if (joystickStatus == 0) {
@@ -84,10 +87,21 @@ void operatorControl() {
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up
 			 */
-			motorSet(1, joystickGetAnalog(joystickStatus, 1));
+			leftX = joystickGetAnalog(joystickStatus, 4);
+			leftY = joystickGetAnalog(joystickStatus, 3);
+			rightX = joystickGetAnalog(joystickStatus, 1);
 		}
+
+		// X Drive Movement
+		motorSet(1, -leftY - leftX - rightX);
+		motorSet(2,  leftY - leftX - rightX);
+		motorSet(3,  leftY + leftX - rightX);
+		motorSet(4, -leftY + leftX - rightX);
+
+		// Motors can only be updated once every 20ms
+		delay(25);
 	}
 
-// Re-do entire process if it failed to start
+	// Re-do entire process if it failed to start
 	operatorControl();
 }

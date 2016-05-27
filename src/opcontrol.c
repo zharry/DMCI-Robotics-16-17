@@ -32,21 +32,11 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-// ------ Robot Status Macros -------
-/* Stores the Robot status
- * 0 - Autonomous
- * 1 - Field controller online
- * 2 - Field controller enabled
- * 3 - Field controller online and field controller enabled
- */
-struct ROBOT_STATUS
-{
-	int AUTO = 0;
-	int ONLINE = 1;
-	int ENABLED = 2;
-} RS;
-
-
+typedef struct { int R_LR, R_UD, L_UD, L_LR, L_BUM, R_BUM, L_PAD, R_PAD; } JOYSTICK_CHANNEL;
+typedef struct { int _null, NW_WHEEL, NE_WHEEL, SE_WHEEL, SW_WHEEL; } MOTOR_CHANNEL;
+const MOTOR_CHANNEL MC = { 1, 2, 3, 4, 5 };
+typedef struct { int AUTO, ONLINE, ENABLED; } ROBOT_STATUS;
+const ROBOT_STATUS RS = { 0, 1, 2 };
 
 void operatorControl() {
 	// Update Team Name if not yet done already
@@ -65,18 +55,18 @@ void operatorControl() {
 		joystickStatus += 2;
 
 	int robotStatus = RS.AUTO;
-	if(!isAutonomous())
-	{
+	if (!isAutonomous()) {
 		if (isOnline())
 			robotStatus |= RS.ONLINE;
 		if (isEnabled())
 			robotStatus |= RS.ENABLED;
 	}
+	printf("HELLO");
 
 	// Safe checking to avoid disqualification
 	while (robotStatus | RS.ENABLED) {
 		// Local Variable Definitions
-		int leftX, leftY, rightX;
+		int leftX = 0, leftY = 0, rightX = 0;
 
 		if (joystickStatus == 3) {
 			// Both Joysticks 1 and 2 are connected and can be referenced
@@ -87,16 +77,16 @@ void operatorControl() {
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up
 			 */
-			leftX = joystickGetAnalog(joystickStatus, 4);
-			leftY = joystickGetAnalog(joystickStatus, 3);
-			rightX = joystickGetAnalog(joystickStatus, 1);
+			leftX  = joystickGetAnalog(joystickStatus, 4); // ~4~ is a controller channel
+			leftY  = joystickGetAnalog(joystickStatus, 3); // ~3~ is a controller channel
+			rightX = -joystickGetAnalog(joystickStatus, 1); // Rotate
 		}
 
 		// X Drive Movement
-		motorSet(1, -leftY - leftX - rightX);
-		motorSet(2,  leftY - leftX - rightX);
-		motorSet(3,  leftY + leftX - rightX);
-		motorSet(4, -leftY + leftX - rightX);
+		motorSet(MC.NW_WHEEL, -leftY - leftX - rightX);
+		motorSet(MC.NE_WHEEL, leftY - leftX - rightX);
+		motorSet(MC.SE_WHEEL, leftY + leftX - rightX);
+		motorSet(MC.SW_WHEEL, -leftY + leftX - rightX);
 
 		// Motors can only be updated once every 20ms
 		delay(25);

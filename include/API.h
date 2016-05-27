@@ -51,8 +51,7 @@ extern "C" {
 
 // ------------------------ Global Variables -------------------------
 
-const char * TEAMNAME = " ";
-
+#define TEAMNAME "Team2505"
 
 // -------------------- VEX competition functions --------------------
 

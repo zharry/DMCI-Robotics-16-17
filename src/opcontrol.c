@@ -94,8 +94,8 @@ void operatorControl() {
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up
 			 */
-			leftX = joystickGetAnalog(joystickStatus, JC.L_LR); // ~4~ is a controller channel
-			leftY = joystickGetAnalog(joystickStatus, JC.L_UD); // ~3~ is a controller channel
+			leftX = joystickGetAnalog(joystickStatus, JC.L_LR); // Movement
+			leftY = joystickGetAnalog(joystickStatus, JC.L_UD); // Movement
 			rightX = -joystickGetAnalog(joystickStatus, JC.R_LR); // Rotate
 		}
 

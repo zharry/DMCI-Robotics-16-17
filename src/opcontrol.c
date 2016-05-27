@@ -32,14 +32,29 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-typedef struct { int R_LR, R_UD, L_UD, L_LR, L_BUM, R_BUM, L_PAD, R_PAD; } JOYSTICK_CHANNEL;
-typedef struct { int _null, NW_WHEEL, NE_WHEEL, SE_WHEEL, SW_WHEEL; } MOTOR_CHANNEL;
+// --------------------------- CONSTANTS -----------------------------
+
+// Constants for Joystick Channel Definitions
+typedef struct {
+	int L_LR, L_UD, R_UD, R_LR, L_BUM, R_BUM, L_PAD, R_PAD;
+} JOYSTICK_CHANNEL;
+const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+// Constants for Cortex Motor Channel Definitions
+typedef struct {
+	int _null, NW_WHEEL, NE_WHEEL, SE_WHEEL, SW_WHEEL;
+} MOTOR_CHANNEL;
 const MOTOR_CHANNEL MC = { 1, 2, 3, 4, 5 };
-typedef struct { int AUTO, ONLINE, ENABLED; } ROBOT_STATUS;
+
+// Constants for Robot Status/State
+typedef struct {
+	int AUTO, ONLINE, ENABLED;
+} ROBOT_STATUS;
 const ROBOT_STATUS RS = { 0, 1, 2 };
 
+// ------------------------ CONTROL CODE ------------------------------
 void operatorControl() {
-	// Update Team Name if not yet done already
+	// Update or Set Team Name if not yet done already
 	setTeamName(TEAMNAME);
 
 	/* Stores which joysticks are connected
@@ -54,6 +69,7 @@ void operatorControl() {
 	if (isJoystickConnected(2))
 		joystickStatus += 2;
 
+	// Update Robot Status
 	int robotStatus = RS.AUTO;
 	if (!isAutonomous()) {
 		if (isOnline())
@@ -61,13 +77,14 @@ void operatorControl() {
 		if (isEnabled())
 			robotStatus |= RS.ENABLED;
 	}
-	printf("HELLO");
 
+	// Robot Control Loop
 	// Safe checking to avoid disqualification
 	while (robotStatus | RS.ENABLED) {
 		// Local Variable Definitions
 		int leftX = 0, leftY = 0, rightX = 0;
 
+		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
 			// Both Joysticks 1 and 2 are connected and can be referenced
 		} else if (joystickStatus == 0) {
@@ -77,9 +94,9 @@ void operatorControl() {
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up
 			 */
-			leftX  = joystickGetAnalog(joystickStatus, 4); // ~4~ is a controller channel
-			leftY  = joystickGetAnalog(joystickStatus, 3); // ~3~ is a controller channel
-			rightX = -joystickGetAnalog(joystickStatus, 1); // Rotate
+			leftX = joystickGetAnalog(joystickStatus, JC.L_LR); // ~4~ is a controller channel
+			leftY = joystickGetAnalog(joystickStatus, JC.L_UD); // ~3~ is a controller channel
+			rightX = -joystickGetAnalog(joystickStatus, JC.R_LR); // Rotate
 		}
 
 		// X Drive Movement

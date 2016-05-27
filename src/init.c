@@ -36,6 +36,6 @@ void initializeIO() {
  * This function must exit relatively promptly, or the operatorControl() and autonomous() tasks will not start. An autonomous mode selection menu like the pre_auton() in other environments can be implemented in this task if desired.
  */
 void initialize() {
-	// Update Team Name if not yet done already
+	// Update or Set Team Name if not yet done already
 	setTeamName(TEAMNAME);
 }

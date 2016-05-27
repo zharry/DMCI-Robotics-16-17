@@ -36,7 +36,7 @@
 
 // Constants for Joystick Channel Definitions
 typedef struct {
-	int L_LR, L_UD, R_UD, R_LR, L_BUM, R_BUM, L_PAD, R_PAD;
+	int L_X, L_Y, R_Y, R_X, L_BUM, R_BUM, L_PAD, R_PAD;
 } JOYSTICK_CHANNEL;
 const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
@@ -94,9 +94,9 @@ void operatorControl() {
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up
 			 */
-			leftX = joystickGetAnalog(joystickStatus, JC.L_LR); // Movement
-			leftY = joystickGetAnalog(joystickStatus, JC.L_UD); // Movement
-			rightX = -joystickGetAnalog(joystickStatus, JC.R_LR); // Rotate
+			leftX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
+			leftY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
+			rightX = -joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
 		}
 
 		// X Drive Movement

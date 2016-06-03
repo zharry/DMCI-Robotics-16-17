@@ -34,6 +34,12 @@
 
 // --------------------------- CONSTANTS -----------------------------
 
+// Constants for Digital Channel Definitions
+typedef struct {
+	int SPEED1, SPEED2, SPEED3, d, e, f, g, h, i, j, DEBUG1, DEBUG2, SP;
+} DIGITAL_CHANNEL;
+const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
+
 // Constants for Joystick Channel Definitions
 typedef struct {
 	int L_X, L_Y, R_Y, R_X, L_BUM, R_BUM, L_PAD, R_PAD;
@@ -77,6 +83,7 @@ void operatorControl() {
 		if (isEnabled())
 			robotStatus |= RS.ENABLED;
 	}
+	puts("Before While");
 
 	// Robot Control Loop
 	// Safe checking to avoid disqualification
@@ -99,14 +106,46 @@ void operatorControl() {
 			rightX = -joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
 		}
 
-		// X Drive Movement
-		motorSet(MC.NW_WHEEL, -leftY - leftX - rightX);
-		motorSet(MC.NE_WHEEL, leftY - leftX - rightX);
-		motorSet(MC.SE_WHEEL, leftY + leftX - rightX);
-		motorSet(MC.SW_WHEEL, -leftY + leftX - rightX);
+		// Read Input
+		//int NDEB1 = digitalRead(DC.DEBUG1), NDEB2 = digitalRead(DC.DEBUG2);
+
+		// Debug
+		//puts("If Debug");
+		//int __DEBUG = digitalRead(1);
+
+		int motor = 0;
+		if (/*!NDEB1 && !NDEB2*/ 1==0) {
+			//puts("LED");
+			/* pinMode(9, OUTPUT);
+			pinMode(11, OUTPUT);
+			digitalWrite(9, 0);
+			digitalWrite(11, 0); */
+			int __DEBUG = digitalRead(1);
+			if(__DEBUG)
+				for(int i = 1; i <= 26; ++i)
+					if(digitalRead(i))
+						printf("[%d]", i);
+		} else {
+			// X Drive Movement
+			int wheel1 = -leftY - leftX - rightX + 127;
+			int wheel2 = leftY - leftX - rightX;
+			int wheel3 = leftY + leftX - rightX;
+			int wheel4 = -leftY + leftX - rightX;
+
+			int __DEBUG = digitalRead(1);
+			if(__DEBUG)
+			{
+				puts("HELLO");
+				digitalWrite(2, 0);
+				motorSet(MC.NW_WHEEL, 50); //wheel1);
+				motorSet(MC.NE_WHEEL, wheel2);
+				motorSet(MC.SE_WHEEL, wheel3);
+				motorSet(MC.SW_WHEEL, wheel4);
+			}else{motorSet(MC.NW_WHEEL, 0);}
+		}
 
 		// Motors can only be updated once every 20ms
-		delay(25);
+		delay(20);
 	}
 
 	// Re-do entire process if it failed to start

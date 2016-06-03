@@ -1028,7 +1028,7 @@ int puts(const char *string);
 /**
  * Prints the formatted string to the specified output stream.
  *
- * The specifiers supported by this minimalistic printf() function are:
+* The specifiers supported by this minimalistic printf() function are:
  * * @c \%d: Signed integer in base 10 (int)
  * * @c \%u: Unsigned integer in base 10 (unsigned int)
  * * @c \%x, @c \%X: Integer in base 16 (unsigned int, int)

@@ -34,11 +34,21 @@
 
 // --------------------------- CONSTANTS -----------------------------
 
+// Digital Read/Write Constants
+#define ON 0
+#define OFF 1
+
 // Constants for Digital Channel Definitions
 typedef struct {
-	int SPEED1, SPEED2, SPEED3, d, e, f, g, h, i, j, DEBUG1, DEBUG2, SP;
+	int SPEED1, SPEED2, SPEED3, d, e, f, g, h, i, DEBUGBOOL, DEBUG1, DEBUG2, SP;
 } DIGITAL_CHANNEL;
 const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
+
+// Constants for Analog Channel Definitions
+typedef struct {
+	int a, b, c, d, e, f, g, h, i, j, DEBUG1, DEBUG2, SP;
+} DIGITAL_CHANNEL;
+const DIGITAL_CHANNEL DC = { 13, 14, 15, 16, 17, 18, 19, 20};
 
 // Constants for Joystick Channel Definitions
 typedef struct {
@@ -83,7 +93,6 @@ void operatorControl() {
 		if (isEnabled())
 			robotStatus |= RS.ENABLED;
 	}
-	puts("Before While");
 
 	// Robot Control Loop
 	// Safe checking to avoid disqualification
@@ -106,42 +115,32 @@ void operatorControl() {
 			rightX = -joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
 		}
 
-		// Read Input
-		//int NDEB1 = digitalRead(DC.DEBUG1), NDEB2 = digitalRead(DC.DEBUG2);
+		// Read Inputs
+		int deb1 = digitalRead(DC.DEBUG1), deb2 = digitalRead(DC.DEBUG2);
 
-		// Debug
-		//puts("If Debug");
-		//int __DEBUG = digitalRead(1);
-
-		int motor = 0;
-		if (/*!NDEB1 && !NDEB2*/ 1==0) {
-			//puts("LED");
-			/* pinMode(9, OUTPUT);
-			pinMode(11, OUTPUT);
-			digitalWrite(9, 0);
-			digitalWrite(11, 0); */
-			int __DEBUG = digitalRead(1);
-			if(__DEBUG)
-				for(int i = 1; i <= 26; ++i)
-					if(digitalRead(i))
-						printf("[%d]", i);
+		if (deb1 == ON && deb2 == ON) {
+			// Turn on Debug Light
+			digitalWrite(DC.DEBUGBOOL, ON);
+			// Turn on all Digital Outputs
+			for (int i = 1; i < 13; i++) {
+				digitalWrite(i, ON);
+			}
+			// Spin all motors at 0.5 speed
+			for (int i = 1; i < 11; i++) {
+				motorSet(i, 64);
+			}
 		} else {
-			// X Drive Movement
-			int wheel1 = -leftY - leftX - rightX + 127;
+			// Calculate Movement
+			int wheel1 = -leftY - leftX - rightX;
 			int wheel2 = leftY - leftX - rightX;
 			int wheel3 = leftY + leftX - rightX;
 			int wheel4 = -leftY + leftX - rightX;
 
-			int __DEBUG = digitalRead(1);
-			if(__DEBUG)
-			{
-				puts("HELLO");
-				digitalWrite(2, 0);
-				motorSet(MC.NW_WHEEL, 50); //wheel1);
-				motorSet(MC.NE_WHEEL, wheel2);
-				motorSet(MC.SE_WHEEL, wheel3);
-				motorSet(MC.SW_WHEEL, wheel4);
-			}else{motorSet(MC.NW_WHEEL, 0);}
+			// Spin Motors
+			motorSet(MC.NW_WHEEL, wheel1);
+			motorSet(MC.NE_WHEEL, wheel2);
+			motorSet(MC.SE_WHEEL, wheel3);
+			motorSet(MC.SW_WHEEL, wheel4);
 		}
 
 		// Motors can only be updated once every 20ms

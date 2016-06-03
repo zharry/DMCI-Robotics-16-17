@@ -40,13 +40,13 @@
 
 // Constants for Digital Channel Definitions
 typedef struct {
-	int SPEED1, SPEED2, SPEED3, d, e, f, g, h, i, DEBUGBOOL, DEBUG1, DEBUG2, SP;
+	int a, b, c, d, e, f, g, h, i, DEBUGBOOL, DEBUG1, DEBUG2, SP;
 } DIGITAL_CHANNEL;
 const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
 
 // Constants for Analog Channel Definitions
 typedef struct {
-	int a, b, c, d, e, f, g, h, i, j, DEBUG1, DEBUG2, SP;
+	int a, b, c, d, e, f, g, h;
 } DIGITAL_CHANNEL;
 const DIGITAL_CHANNEL DC = { 13, 14, 15, 16, 17, 18, 19, 20};
 

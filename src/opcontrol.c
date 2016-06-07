@@ -47,12 +47,12 @@ const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
 // Constants for Analog Channel Definitions
 typedef struct {
 	int a, b, c, d, e, f, g, h;
-} DIGITAL_CHANNEL;
-const DIGITAL_CHANNEL DC = { 13, 14, 15, 16, 17, 18, 19, 20};
+} ANALOG_CHANNEL;
+const ANALOG_CHANNEL AC = { 13, 14, 15, 16, 17, 18, 19, 20};
 
 // Constants for Joystick Channel Definitions
 typedef struct {
-	int L_X, L_Y, R_Y, R_X, L_BUM, R_BUM, L_PAD, R_PAD;
+	int R_X, R_Y, L_Y, L_X, L_BUM, R_BUM, L_PAD, R_PAD;
 } JOYSTICK_CHANNEL;
 const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
@@ -60,7 +60,7 @@ const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
 typedef struct {
 	int _null, NW_WHEEL, NE_WHEEL, SE_WHEEL, SW_WHEEL;
 } MOTOR_CHANNEL;
-const MOTOR_CHANNEL MC = { 1, 2, 3, 4, 5 };
+const MOTOR_CHANNEL MC = { 1, 2, 3, 8, 9 };
 
 // Constants for Robot Status/State
 typedef struct {
@@ -123,13 +123,15 @@ void operatorControl() {
 			digitalWrite(DC.DEBUGBOOL, ON);
 			// Turn on all Digital Outputs
 			for (int i = 1; i < 13; i++) {
-				digitalWrite(i, ON);
+				//digitalWrite(i, ON);
 			}
 			// Spin all motors at 0.5 speed
 			for (int i = 1; i < 11; i++) {
-				motorSet(i, 64);
+				//motorSet(i, 64);
 			}
 		} else {
+			// Turn off Debug Light
+			digitalWrite(DC.DEBUGBOOL, OFF);
 			// Calculate Movement
 			int wheel1 = -leftY - leftX - rightX;
 			int wheel2 = leftY - leftX - rightX;

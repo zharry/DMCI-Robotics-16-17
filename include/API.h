@@ -51,6 +51,7 @@ extern "C" {
 
 // ------------------------ Global Variables -------------------------
 
+#define MAXFWD 127 // Maximum Motor Speed
 #define TEAMNAME "Team2505"
 
 // -------------------- VEX competition functions --------------------

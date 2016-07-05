@@ -99,26 +99,28 @@ void operatorControl() {
 	while (robotStatus | RS.ENABLED) {
 		// Local Variable Definitions
 		int leftX = 0, leftY = 0, rightX = 0;
+		int debug = 0;
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
 			// Both Joysticks 1 and 2 are connected and can be referenced
 		} else if (joystickStatus == 0) {
-			// No Joysticks connected, for debugging operator controlled
+			// No Joysticks connected
+			// Override jumper settings if no joysticks are connected in operator controlled mode
+			debug = 1;
 		} else {
-			/* One of Josystick 1 or 2 is connected,
-			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
-			 * as the numbers assigned match up
-			 */
-			leftX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
-			leftY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
-			rightX = -joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
+			// One of Josystick 1 or 2 is connected
+			// Set the joystick to be referenced as liveJoystick
+			int liveJoystick = joystickStatus;
+			leftX = joystickGetAnalog(liveJoystick, JC.L_X); // Movement
+			leftY = joystickGetAnalog(liveJoystick, JC.L_Y); // Movement
+			rightX = -joystickGetAnalog(liveJoystick, JC.R_X); // Rotate
 		}
 
 		// Read Inputs
 		int deb1 = digitalRead(DC.DEBUG1), deb2 = digitalRead(DC.DEBUG2);
 
-		if (deb1 == ON && deb2 == ON) {
+		if ((deb1 == ON && deb2 == ON) || debug) {
 			// Turn on Debug Light
 			digitalWrite(DC.DEBUGBOOL, ON);
 			// Turn on all Digital Outputs

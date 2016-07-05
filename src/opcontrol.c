@@ -33,6 +33,7 @@
  */
 
 // --------------------------- CONSTANTS -----------------------------
+
 // Digital Read/Write Constants
 #define ON 0
 #define OFF 1
@@ -47,7 +48,7 @@ const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
 typedef struct {
 	int a, b, c, d, e, f, g, h;
 } ANALOG_CHANNEL;
-const ANALOG_CHANNEL AC = { 13, 14, 15, 16, 17, 18, 19, 20 };
+const ANALOG_CHANNEL AC = { 13, 14, 15, 16, 17, 18, 19, 20};
 
 // Constants for Joystick Channel Definitions
 typedef struct {
@@ -151,6 +152,3 @@ void operatorControl() {
 	// Re-do entire process if it failed to start
 	operatorControl();
 }
-
-
-// Test

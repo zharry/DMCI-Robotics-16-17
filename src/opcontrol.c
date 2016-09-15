@@ -1,5 +1,3 @@
-// Test
-
 /**
  * File for operator control code.
  *
@@ -83,9 +81,9 @@ void operatorControl() {
 	 */
 	int joystickStatus = 0;
 	if (isJoystickConnected(1))
-		joystickStatus |= 1;
+		joystickStatus += 1;
 	if (isJoystickConnected(2))
-		joystickStatus |= 2;
+		joystickStatus += 2;
 
 	// Update Robot Status
 	int robotStatus = RS.AUTO;
@@ -129,7 +127,7 @@ void operatorControl() {
 			}
 			// Spin all motors at 0.5 speed
 			for (int i = 1; i < 11; i++) {
-				//motorSet(i, MAXFWD >> 1);
+				//motorSet(i, 64);
 			}
 		} else {
 			// Turn off Debug Light

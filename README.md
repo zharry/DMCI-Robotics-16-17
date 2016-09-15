@@ -11,8 +11,9 @@
 - [VexNet Drivers and Updaters](http://www.vexrobotics.com/vexedr/software/firmware/)
 
 ## To-Do List:
-- Update PROS documentation
+- Learn how the API works
+- Upload sample code
 - Test all current parts
 
 ## Sources:
-- [Cody from Vex Forums](http://www.vexforum.com/index.php/12370-holonomic-drives-2-0-a-video-tutorial-by-cody/p1#p115340)
+- Cody from Vex Forums [Link](http://www.vexforum.com/index.php/12370-holonomic-drives-2-0-a-video-tutorial-by-cody/p1#p115340)

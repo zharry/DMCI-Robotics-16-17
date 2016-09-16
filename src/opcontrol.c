@@ -133,10 +133,10 @@ void operatorControl() {
 			// Turn off Debug Light
 			digitalWrite(DC.DEBUGBOOL, OFF);
 			// Calculate Movement
-			int wheel1 = -leftY - leftX - rightX;
-			int wheel2 = leftY - leftX - rightX;
-			int wheel3 = leftY + leftX - rightX;
-			int wheel4 = -leftY + leftX - rightX;
+			int wheel1 = leftY + leftX - rightX;
+			int wheel2 = -leftY + leftX - rightX;
+			int wheel3 = -leftY - leftX - rightX;
+			int wheel4 = leftY - leftX - rightX;
 
 			// Spin Motors
 			motorSet(MC.NW_WHEEL, wheel1);

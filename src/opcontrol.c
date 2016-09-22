@@ -81,9 +81,9 @@ void operatorControl() {
 	 */
 	int joystickStatus = 0;
 	if (isJoystickConnected(1))
-		joystickStatus += 1;
+		joystickStatus |= 1;
 	if (isJoystickConnected(2))
-		joystickStatus += 2;
+		joystickStatus |= 2;
 
 	// Update Robot Status
 	int robotStatus = RS.AUTO;
@@ -133,17 +133,24 @@ void operatorControl() {
 			// Turn off Debug Light
 			digitalWrite(DC.DEBUGBOOL, OFF);
 			// Calculate Movement
-			int wheel1 = leftY + leftX - rightX;
-			int wheel2 = -leftY + leftX - rightX;
-			int wheel3 = -leftY - leftX - rightX;
-			int wheel4 = leftY - leftX - rightX;
+			int wheel[] = { 0,
+					leftY + leftX - rightX, // wheel1, etc
+					-leftY + leftX - rightX,
+					-leftY - leftX - rightX,
+					leftY - leftX - rightX
+			};
 
 			// Spin Motors
-			motorSet(MC.NW_WHEEL, wheel1);
-			motorSet(MC.NE_WHEEL, wheel2);
-			motorSet(MC.SE_WHEEL, wheel3);
-			motorSet(MC.SW_WHEEL, wheel4);
+			motorSet(MC.NW_WHEEL, wheel[1]);
+			motorSet(MC.NE_WHEEL, wheel[2]);
+			motorSet(MC.SE_WHEEL, wheel[3]);
+			motorSet(MC.SW_WHEEL, wheel[4]);
 		}
+
+
+		// Harry's Sketchy Request: Get Motor Encoding
+		int motor_spin = analogRead(DC.a); // Analog Sensor (0 - 4095) -> (0 -> 5 volts)
+
 
 		// Motors can only be updated once every 20ms
 		delay(20);

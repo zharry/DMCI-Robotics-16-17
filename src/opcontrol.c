@@ -147,11 +147,6 @@ void operatorControl() {
 			motorSet(MC.SW_WHEEL, wheel[4]);
 		}
 
-
-		// Harry's Sketchy Request: Get Motor Encoding
-		int motor_spin = analogRead(DC.a); // Analog Sensor (0 - 4095) -> (0 -> 5 volts)
-
-
 		// Motors can only be updated once every 20ms
 		delay(20);
 	}

@@ -1,3 +1,6 @@
+Tuesday, September 27th, 2016:
+- Restarted, code
+
 Monday July 11th:
 - Fixed some Git issues
 - Move ChangeLog from local to Git

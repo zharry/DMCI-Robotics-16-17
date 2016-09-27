@@ -40,7 +40,7 @@
 
 // Constants for Digital Channel Definitions
 typedef struct {
-	int a, b, c, d, e, f, g, h, i, DEBUGBOOL, DEBUG1, DEBUG2, SP;
+	int a, b, c, d, e, f, g, h, i, j, k, l, SP;
 } DIGITAL_CHANNEL;
 const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
 
@@ -58,7 +58,7 @@ const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
 // Constants for Cortex Motor Channel Definitions
 typedef struct {
-	int _null, NW_WHEEL, NE_WHEEL, SE_WHEEL, SW_WHEEL;
+	int _null, NE_WHEEL, SE_WHEEL, SW_WHEEL, NW_WHEEL;
 } MOTOR_CHANNEL;
 const MOTOR_CHANNEL MC = { 1, 2, 3, 8, 9 };
 
@@ -115,36 +115,12 @@ void operatorControl() {
 			rightX = -joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
 		}
 
-		// Read Inputs
-		int deb1 = digitalRead(DC.DEBUG1), deb2 = digitalRead(DC.DEBUG2);
+		// Debug
+		if (false) {
 
-		if (deb1 == ON && deb2 == ON) {
-			// Turn on Debug Light
-			digitalWrite(DC.DEBUGBOOL, ON);
-			// Turn on all Digital Outputs
-			for (int i = 1; i < 13; i++) {
-				//digitalWrite(i, ON);
-			}
-			// Spin all motors at 0.5 speed
-			for (int i = 1; i < 11; i++) {
-				//motorSet(i, 64);
-			}
+		// Live
 		} else {
-			// Turn off Debug Light
-			digitalWrite(DC.DEBUGBOOL, OFF);
-			// Calculate Movement
-			int wheel[] = { 0,
-					leftY + leftX - rightX, // wheel1, etc
-					-leftY + leftX - rightX,
-					-leftY - leftX - rightX,
-					leftY - leftX - rightX
-			};
 
-			// Spin Motors
-			motorSet(MC.NW_WHEEL, wheel[1]);
-			motorSet(MC.NE_WHEEL, wheel[2]);
-			motorSet(MC.SE_WHEEL, wheel[3]);
-			motorSet(MC.SW_WHEEL, wheel[4]);
 		}
 
 		// Motors can only be updated once every 20ms

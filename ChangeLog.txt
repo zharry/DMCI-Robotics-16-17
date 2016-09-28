@@ -1,3 +1,7 @@
+Wednesday, September 28th, 2016:
+- Added H-Drive code
+- Capping, instead of normalizing motor speed
+
 Tuesday, September 27th, 2016:
 - Restarted, code
 

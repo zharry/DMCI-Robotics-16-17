@@ -58,15 +58,27 @@ const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
 // Constants for Cortex Motor Channel Definitions
 typedef struct {
-	int _null, NE_WHEEL, SE_WHEEL, SW_WHEEL, NW_WHEEL;
+	int _null, SW_WHEEL, SE_WHEEL, MI_WHEEL;
 } MOTOR_CHANNEL;
-const MOTOR_CHANNEL MC = { 1, 2, 3, 8, 9 };
+const MOTOR_CHANNEL MC = { 0, 3, 2, 0 }; // 1, 2, 8, 9 are recommended
 
 // Constants for Robot Status/State
 typedef struct {
 	int AUTO, ONLINE, ENABLED;
 } ROBOT_STATUS;
 const ROBOT_STATUS RS = { 0, 1, 2 };
+
+#define RANGE_MAX (127)
+
+int cap(int num, int max) {
+	if(num > max) {
+		num = max;
+	}
+	else if(num < -max) {
+		num = -max;
+	}
+	return num;
+}
 
 // ------------------------ CONTROL CODE ------------------------------
 void operatorControl() {
@@ -98,7 +110,10 @@ void operatorControl() {
 	// Safe checking to avoid disqualification
 	while (robotStatus | RS.ENABLED) {
 		// Local Variable Definitions
-		int leftX = 0, leftY = 0, rightX = 0;
+		int lhsX = 0, lhsY = 0, rhsX = 0;
+
+		const int K = 0;
+		int L, R, C; // Output Values corresponding to the motor
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
@@ -108,11 +123,11 @@ void operatorControl() {
 		} else {
 			/* One of Josystick 1 or 2 is connected,
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
-			 * as the numbers assigned match up
+			 * as the numbers assigned match up (reads from the specified joystick)
 			 */
-			leftX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
-			leftY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
-			rightX = -joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
+			// leftX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
+			lhsY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
+			rhsX = joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
 		}
 
 		// Debug
@@ -120,7 +135,13 @@ void operatorControl() {
 
 		// Live
 		} else {
+			L = cap(lhsY - rhsX, RANGE_MAX);
+			R = cap(lhsY + rhsX, RANGE_MAX);
+			C = cap(lhsX + rhsX * K, RANGE_MAX);
 
+			motorSet(MC.SW_WHEEL, L);
+			motorSet(MC.SE_WHEEL, R);
+			motorSet(MC.MI_WHEEL, C);
 		}
 
 		// Motors can only be updated once every 20ms

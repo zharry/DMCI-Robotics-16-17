@@ -18,6 +18,8 @@
  * Purdue Robotics OS contains FreeRTOS (http://www.freertos.org) whose source code may be obtained from http://sourceforge.net/projects/freertos/files/ or on request.
  ********************************************************************************/
 
+#include <stdbool.h>
+
 #include "../include/API.h"
 
 /**
@@ -33,7 +35,6 @@
  */
 
 // --------------------------- CONSTANTS -----------------------------
-
 // Digital Read/Write Constants
 #define ON 0
 #define OFF 1
@@ -48,7 +49,7 @@ const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
 typedef struct {
 	int a, b, c, d, e, f, g, h;
 } ANALOG_CHANNEL;
-const ANALOG_CHANNEL AC = { 13, 14, 15, 16, 17, 18, 19, 20};
+const ANALOG_CHANNEL AC = { 13, 14, 15, 16, 17, 18, 19, 20 };
 
 // Constants for Joystick Channel Definitions
 typedef struct {
@@ -58,9 +59,9 @@ const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
 // Constants for Cortex Motor Channel Definitions
 typedef struct {
-	int _null, SW_WHEEL, SE_WHEEL, MI_WHEEL;
+	int L_WHEEL, R_WHEEL, M_WHEEL, SUPPORT, B_LIFT, M_LIFT, T_LIFT;
 } MOTOR_CHANNEL;
-const MOTOR_CHANNEL MC = { 0, 3, 2, 0 }; // 1, 2, 8, 9 are recommended
+const MOTOR_CHANNEL MC = { 2, 3, 4, 6, 7, 8, 9 }; // 1, 2, 8, 9 are recommended
 
 // Constants for Robot Status/State
 typedef struct {
@@ -71,10 +72,9 @@ const ROBOT_STATUS RS = { 0, 1, 2 };
 #define RANGE_MAX (127)
 
 int cap(int num, int max) {
-	if(num > max) {
+	if (num > max) {
 		num = max;
-	}
-	else if(num < -max) {
+	} else if (num < -max) {
 		num = -max;
 	}
 	return num;
@@ -111,9 +111,9 @@ void operatorControl() {
 	while (robotStatus | RS.ENABLED) {
 		// Local Variable Definitions
 		int lhsX = 0, lhsY = 0, rhsX = 0;
-
 		const int K = 0;
 		int L, R, C; // Output Values corresponding to the motor
+		bool supUp = false, supDw = false, liftUp = false, liftDw = false;
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
@@ -125,23 +125,54 @@ void operatorControl() {
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up (reads from the specified joystick)
 			 */
-			// leftX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
+
+			// Driving
+			lhsX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
 			lhsY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
 			rhsX = joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
+
+			// Support
+			supUp = joystickGetDigital(joystickStatus, JC.L_BUM, JOY_DOWN);
+			supDw = joystickGetDigital(joystickStatus, JC.L_BUM, JOY_UP);
+
+			// Lift
+			liftUp = joystickGetDigital(joystickStatus, JC.R_BUM, JOY_DOWN);
+			liftDw = joystickGetDigital(joystickStatus, JC.R_BUM, JOY_UP);
+
 		}
 
 		// Debug
 		if (false) {
 
-		// Live
+			// Live
 		} else {
+
+			// Driving
 			L = cap(lhsY - rhsX, RANGE_MAX);
 			R = cap(lhsY + rhsX, RANGE_MAX);
 			C = cap(lhsX + rhsX * K, RANGE_MAX);
+			motorSet(MC.L_WHEEL, L);
+			motorSet(MC.R_WHEEL, R);
+			motorSet(MC.M_WHEEL, C);
 
-			motorSet(MC.SW_WHEEL, L);
-			motorSet(MC.SE_WHEEL, R);
-			motorSet(MC.MI_WHEEL, C);
+			// Support
+			if (supDw)
+				motorSet(MC.SUPPORT, -32);
+			if (supUp)
+				motorSet(MC.SUPPORT, 32);
+
+			// Lift
+			if (liftUp) {
+				motorSet(MC.B_LIFT, 127);
+				motorSet(MC.M_LIFT, 127);
+				motorSet(MC.T_LIFT, 127);
+			}
+			if (liftDw) {
+				motorSet(MC.B_LIFT, -127);
+				motorSet(MC.M_LIFT, -127);
+				motorSet(MC.T_LIFT, -127);
+			}
+
 		}
 
 		// Motors can only be updated once every 20ms

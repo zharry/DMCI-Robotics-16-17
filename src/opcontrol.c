@@ -158,7 +158,9 @@ void operatorControl() {
 			// Support
 			if (supDw)
 				motorSet(MC.SUPPORT, -32);
-			if (supUp)
+			else if (supUp)
+				motorSet(MC.SUPPORT, 32);
+			else
 				motorSet(MC.SUPPORT, 32);
 
 			// Lift
@@ -166,17 +168,20 @@ void operatorControl() {
 				motorSet(MC.B_LIFT, 127);
 				motorSet(MC.M_LIFT, 127);
 				motorSet(MC.T_LIFT, 127);
-			}
-			if (liftDw) {
+			} else if (liftDw) {
 				motorSet(MC.B_LIFT, -127);
 				motorSet(MC.M_LIFT, -127);
 				motorSet(MC.T_LIFT, -127);
+			} else {
+				motorSet(MC.B_LIFT, 0);
+				motorSet(MC.M_LIFT, 0);
+				motorSet(MC.T_LIFT, 0);
 			}
 
 		}
 
 		// Motors can only be updated once every 20ms
-		delay(20);
+		delay(25);
 	}
 
 	// Re-do entire process if it failed to start

@@ -16,6 +16,7 @@
  * Purdue Robotics OS contains FreeRTOS(http://www.freertos.org) whose source code may be obtained from http://sourceforge.net/projects/freertos/files/ or on request.
  */
 
+// Custom "main.h" header
 #include "main.h"
 
  /**
@@ -36,6 +37,6 @@ void initializeIO() {
  * This function must exit relatively promptly, or the operatorControl() and autonomous() tasks will not start. An autonomous mode selection menu like the pre_auton() in other environments can be implemented in this task if desired.
  */
 void initialize() {
-	// Update or Set Team Name if not yet done already
+	// Update or Set Team Name
 	setTeamName(TEAMNAME);
 }

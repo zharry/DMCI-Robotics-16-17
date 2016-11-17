@@ -43,12 +43,8 @@
 // This prevents multiple inclusion, which isn't bad for this file but is good practice
 #define MAIN_H_
 
-#include <API.h>
-
-// Allow usage of this file in C++ programs
-#ifdef __cplusplus
-extern "C" {
-#endif
+// Custom "API.h" header
+#include "API.h"
 
 //#define AUTO_DEBUG
 
@@ -113,11 +109,6 @@ void initialize();
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl();
-
-// End C++ export structure
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

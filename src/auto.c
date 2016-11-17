@@ -16,6 +16,7 @@
 * Purdue Robotics OS contains FreeRTOS (http://www.freertos.org) whose source code may be obtained from http://sourceforge.net/projects/freertos/files/ or on request.
 ********************************************************************************/
 
+// Custom "main.h" header
 #include "main.h"
 
 /**
@@ -28,6 +29,5 @@
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
 void autonomous() {
-	// Update or Set Team Name if not yet done already
-	setTeamName(TEAMNAME);
+
 }

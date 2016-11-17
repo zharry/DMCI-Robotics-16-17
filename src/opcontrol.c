@@ -20,7 +20,8 @@
 
 #include <stdbool.h>
 
-#include "../include/API.h"
+// Custom "main.h" header
+#include "main.h"
 
 /**
  * Runs the user operator control code.
@@ -34,56 +35,8 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 
-// --------------------------- CONSTANTS -----------------------------
-// Digital Read/Write Constants
-#define ON 0
-#define OFF 1
-
-// Constants for Digital Channel Definitions
-typedef struct {
-	int a, b, c, d, e, f, g, h, i, j, k, l, SP;
-} DIGITAL_CHANNEL;
-const DIGITAL_CHANNEL DC = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1 };
-
-// Constants for Analog Channel Definitions
-typedef struct {
-	int a, b, c, d, e, f, g, h;
-} ANALOG_CHANNEL;
-const ANALOG_CHANNEL AC = { 13, 14, 15, 16, 17, 18, 19, 20 };
-
-// Constants for Joystick Channel Definitions
-typedef struct {
-	int R_X, R_Y, L_Y, L_X, L_BUM, R_BUM, L_PAD, R_PAD;
-} JOYSTICK_CHANNEL;
-const JOYSTICK_CHANNEL JC = { 1, 2, 3, 4, 5, 6, 7, 8 };
-
-// Constants for Cortex Motor Channel Definitions
-typedef struct {
-	int L_WHEEL, R_WHEEL, M_WHEEL, SUPPORT, B_LIFT, M_LIFT, T_LIFT;
-} MOTOR_CHANNEL;
-const MOTOR_CHANNEL MC = { 2, 3, 4, 6, 7, 8, 9 }; // 1, 2, 8, 9 are recommended
-
-// Constants for Robot Status/State
-typedef struct {
-	int AUTO, ONLINE, ENABLED;
-} ROBOT_STATUS;
-const ROBOT_STATUS RS = { 0, 1, 2 };
-
-#define RANGE_MAX (127)
-
-int cap(int num, int max) {
-	if (num > max) {
-		num = max;
-	} else if (num < -max) {
-		num = -max;
-	}
-	return num;
-}
-
 // ------------------------ CONTROL CODE ------------------------------
 void operatorControl() {
-	// Update or Set Team Name if not yet done already
-	setTeamName(TEAMNAME);
 
 	/* Stores which joysticks are connected
 	 * 0 - None
@@ -109,11 +62,11 @@ void operatorControl() {
 	// Robot Control Loop
 	// Safe checking to avoid disqualification
 	while (robotStatus | RS.ENABLED) {
-		// Local Variable Definitions
-		int lhsX = 0, lhsY = 0, rhsX = 0;
-		const int K = 0;
-		int L, R, C; // Output Values corresponding to the motor
-		bool supUp = false, supDw = false, liftUp = false, liftDw = false;
+
+		// Local Variables
+		int moveX, moveY, rotate;
+		int L, R, C;
+		bool liftUp, liftDw, supUp, supDw;
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
@@ -127,9 +80,9 @@ void operatorControl() {
 			 */
 
 			// Driving
-			lhsX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
-			lhsY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
-			rhsX = joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
+			moveX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
+			moveY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
+			rotate = joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
 
 			// Support
 			supUp = joystickGetDigital(joystickStatus, JC.L_BUM, JOY_DOWN);
@@ -141,43 +94,44 @@ void operatorControl() {
 
 		}
 
-		// Debug
-		if (false) {
+		// Driving
+		L = cap(moveY - rotate, RANGE_MAX);
+		R = cap(moveY + rotate, RANGE_MAX);
+		C = cap((moveX + rotate) * MOVEK, RANGE_MAX);
+		motorSet(MC.L_WHEEL, L);
+		motorSet(MC.R_WHEEL, R);
+		motorSet(MC.M_WHEEL, C);
 
-			// Live
+		// Support
+		if (supDw)
+			motorSet(MC.SUPPORT, -32);
+		else if (supUp)
+			motorSet(MC.SUPPORT, 32);
+		else
+			motorSet(MC.SUPPORT, 0);
+
+		// Lift
+		if (liftUp) {
+			motorSet(MC.BL_LIFT, LIFTSPEED);
+			motorSet(MC.ML_LIFT, LIFTSPEED);
+			motorSet(MC.TL_LIFT, LIFTSPEED);
+			motorSet(MC.BR_LIFT, -LIFTSPEED);
+			motorSet(MC.MR_LIFT, -LIFTSPEED);
+			motorSet(MC.TR_LIFT, -LIFTSPEED);
+		} else if (liftDw) {
+			motorSet(MC.BL_LIFT, -LIFTSPEED);
+			motorSet(MC.ML_LIFT, -LIFTSPEED);
+			motorSet(MC.TL_LIFT, -LIFTSPEED);
+			motorSet(MC.BR_LIFT, LIFTSPEED);
+			motorSet(MC.MR_LIFT, LIFTSPEED);
+			motorSet(MC.TR_LIFT, LIFTSPEED);
 		} else {
-
-			// Driving
-			L = cap(lhsY - rhsX, RANGE_MAX);
-			R = cap(lhsY + rhsX, RANGE_MAX);
-			C = cap(lhsX + rhsX * K, RANGE_MAX);
-			motorSet(MC.L_WHEEL, L);
-			motorSet(MC.R_WHEEL, R);
-			motorSet(MC.M_WHEEL, C);
-
-			// Support
-			if (supDw)
-				motorSet(MC.SUPPORT, -32);
-			else if (supUp)
-				motorSet(MC.SUPPORT, 32);
-			else
-				motorSet(MC.SUPPORT, 32);
-
-			// Lift
-			if (liftUp) {
-				motorSet(MC.B_LIFT, 127);
-				motorSet(MC.M_LIFT, 127);
-				motorSet(MC.T_LIFT, 127);
-			} else if (liftDw) {
-				motorSet(MC.B_LIFT, -127);
-				motorSet(MC.M_LIFT, -127);
-				motorSet(MC.T_LIFT, -127);
-			} else {
-				motorSet(MC.B_LIFT, 0);
-				motorSet(MC.M_LIFT, 0);
-				motorSet(MC.T_LIFT, 0);
-			}
-
+			motorSet(MC.BL_LIFT, 0);
+			motorSet(MC.ML_LIFT, 0);
+			motorSet(MC.TL_LIFT, 0);
+			motorSet(MC.BR_LIFT, 0);
+			motorSet(MC.MR_LIFT, 0);
+			motorSet(MC.TR_LIFT, 0);
 		}
 
 		// Motors can only be updated once every 20ms

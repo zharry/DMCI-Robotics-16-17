@@ -44,15 +44,13 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
+// Custom "constants.h" Header
+#include "constants.h"
+
 // Begin C++ extern to C
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// ------------------------ Global Variables -------------------------
-
-#define MAXFWD 127 // Maximum Motor Speed
-#define TEAMNAME "Team2505"
 
 // -------------------- VEX competition functions --------------------
 

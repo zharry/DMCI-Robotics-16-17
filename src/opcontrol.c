@@ -38,6 +38,8 @@
 // ------------------------ CONTROL CODE ------------------------------
 void operatorControl() {
 
+	unsigned long prevWakeupTime = millis();
+
 	/* Stores which joysticks are connected
 	 * 0 - None
 	 * 1 - Only Joystick 1
@@ -51,22 +53,27 @@ void operatorControl() {
 		joystickStatus |= 2;
 
 	// Update Robot Status
-	int robotStatus = RS.AUTO;
-	if (!isAutonomous()) {
-		if (isOnline())
-			robotStatus |= RS.ONLINE;
-		if (isEnabled())
-			robotStatus |= RS.ENABLED;
-	}
+//	int robotStatus = RS.AUTO;
+//	if (!isAutonomous()) {
+//		if (isOnline())
+//			robotStatus |= RS.ONLINE;
+//		if (isEnabled())
+//			robotStatus |= RS.ENABLED;
+//	}
 
 	// Robot Control Loop
 	// Safe checking to avoid disqualification
-	while (robotStatus | RS.ENABLED) {
+	// NOPE lies. This checks for ABSOLUTELY NOTHING once it starts.
+	while (1) {
+		
+		if(!isEnabled()) {
+			delay(20);
+		}
 
 		// Local Variables
-		int moveX, moveY, rotate;
+		int moveX = 0, moveY = 0, rotate = 0;
 		int L, R, C;
-		bool liftUp, liftDw, supUp, supDw;
+		bool liftUp = 0, liftDw = 0, supUp = 0, supDw = 0;
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
@@ -80,64 +87,56 @@ void operatorControl() {
 			 */
 
 			// Driving
-			moveX = joystickGetAnalog(joystickStatus, JC.L_X); // Movement
-			moveY = joystickGetAnalog(joystickStatus, JC.L_Y); // Movement
-			rotate = joystickGetAnalog(joystickStatus, JC.R_X); // Rotate
+			moveX = joystickGetAnalog(joystickStatus, JOY_LX); // Movement
+			moveY = joystickGetAnalog(joystickStatus, JOY_LY); // Movement
+			rotate = joystickGetAnalog(joystickStatus, JOY_RX); // Rotate
 
 			// Support
-			supUp = joystickGetDigital(joystickStatus, JC.L_BUM, JOY_DOWN);
-			supDw = joystickGetDigital(joystickStatus, JC.L_BUM, JOY_UP);
+			supUp = joystickGetDigital(joystickStatus, JOY_LBUM, JOY_DOWN);
+			supDw = joystickGetDigital(joystickStatus, JOY_LBUM, JOY_UP);
 
 			// Lift
-			liftUp = joystickGetDigital(joystickStatus, JC.R_BUM, JOY_DOWN);
-			liftDw = joystickGetDigital(joystickStatus, JC.R_BUM, JOY_UP);
+			liftUp = joystickGetDigital(joystickStatus, JOY_RBUM, JOY_DOWN);
+			liftDw = joystickGetDigital(joystickStatus, JOY_RBUM, JOY_UP);
 
 		}
 
 		// Driving
-		L = cap(moveY - rotate, RANGE_MAX);
-		R = cap(moveY + rotate, RANGE_MAX);
-		C = cap((moveX + rotate) * MOVEK, RANGE_MAX);
-		motorSet(MC.L_WHEEL, L);
-		motorSet(MC.R_WHEEL, R);
-		motorSet(MC.M_WHEEL, C);
+		L = CAP(moveY - rotate, RANGE_MAX);
+		R = CAP(moveY + rotate, RANGE_MAX);
+		C = CAP(moveX, RANGE_MAX);
+		motorSet(MC_WHEEL_L, L);
+		motorSet(MC_WHEEL_R, R);
+		motorSet(MC_WHEEL_M, C);
 
 		// Support
 		if (supDw)
-			motorSet(MC.SUPPORT, -32);
+			motorSet(MC_SUPPORT, -32);
 		else if (supUp)
-			motorSet(MC.SUPPORT, 32);
+			motorSet(MC_SUPPORT, 32);
 		else
-			motorSet(MC.SUPPORT, 0);
+			motorSet(MC_SUPPORT, 0);
 
-		// Lift
-		if (liftUp) {
-			motorSet(MC.BL_LIFT, LIFTSPEED);
-			motorSet(MC.ML_LIFT, LIFTSPEED);
-			motorSet(MC.TL_LIFT, LIFTSPEED);
-			motorSet(MC.BR_LIFT, -LIFTSPEED);
-			motorSet(MC.MR_LIFT, -LIFTSPEED);
-			motorSet(MC.TR_LIFT, -LIFTSPEED);
-		} else if (liftDw) {
-			motorSet(MC.BL_LIFT, -LIFTSPEED);
-			motorSet(MC.ML_LIFT, -LIFTSPEED);
-			motorSet(MC.TL_LIFT, -LIFTSPEED);
-			motorSet(MC.BR_LIFT, LIFTSPEED);
-			motorSet(MC.MR_LIFT, LIFTSPEED);
-			motorSet(MC.TR_LIFT, LIFTSPEED);
-		} else {
-			motorSet(MC.BL_LIFT, 0);
-			motorSet(MC.ML_LIFT, 0);
-			motorSet(MC.TL_LIFT, 0);
-			motorSet(MC.BR_LIFT, 0);
-			motorSet(MC.MR_LIFT, 0);
-			motorSet(MC.TR_LIFT, 0);
+		int liftSpeed = 0;
+		if(liftUp) {
+			liftSpeed = LIFTSPEED;
+		} else if(liftDw) {
+			liftSpeed = -LIFTSPEED;
 		}
 
-		// Motors can only be updated once every 20ms
-		delay(25);
+		// Lift
+		motorSet(MC_LIFT_BL, liftSpeed);
+		motorSet(MC_LIFT_ML, liftSpeed);
+		motorSet(MC_LIFT_TL, liftSpeed);
+		motorSet(MC_LIFT_BR, -liftSpeed);
+		motorSet(MC_LIFT_MR, -liftSpeed);
+		motorSet(MC_LIFT_TR, -liftSpeed);
+
+		// Motors can only be updated once every 20ms, therefore updating at twice the rate for better response time
+		taskDelayUntil(&prevWakeupTime, 10);
 	}
 
 	// Re-do entire process if it failed to start
-	operatorControl();
+	// Not necessary
+	// operatorControl();
 }

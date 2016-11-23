@@ -44,6 +44,7 @@
 
 // Custom "API.h" header
 #include "API.h"
+#include "pid.h"
 
 //#define AUTO_DEBUG
 

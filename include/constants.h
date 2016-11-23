@@ -40,7 +40,7 @@
 
 #define MC_WHEEL_L 2
 #define MC_WHEEL_R 9
-#define MC_WHEEL_M 3
+#define MC_WHEEL_M 1
 
 #define MC_LIFT_BL 3
 #define MC_LIFT_ML 4

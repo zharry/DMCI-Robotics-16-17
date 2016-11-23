@@ -125,12 +125,12 @@ void operatorControl() {
 		}
 
 		// Lift
-//		motorSet(MC_LIFT_BL, liftSpeed);
-//		motorSet(MC_LIFT_ML, liftSpeed);
-//		motorSet(MC_LIFT_TL, liftSpeed);
-//		motorSet(MC_LIFT_BR, -liftSpeed);
-//		motorSet(MC_LIFT_MR, -liftSpeed);
-//		motorSet(MC_LIFT_TR, -liftSpeed);
+		motorSet(MC_LIFT_BL, liftSpeed);
+		motorSet(MC_LIFT_ML, liftSpeed);
+		motorSet(MC_LIFT_TL, liftSpeed);
+		motorSet(MC_LIFT_BR, -liftSpeed);
+		motorSet(MC_LIFT_MR, -liftSpeed);
+		motorSet(MC_LIFT_TR, -liftSpeed);
 
 		// Motors can only be updated once every 20ms, therefore updating at twice the rate for better response time
 		taskDelayUntil(&prevWakeupTime, 10);

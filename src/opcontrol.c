@@ -132,6 +132,8 @@ void operatorControl() {
 		motorSet(MC_LIFT_MR, -liftSpeed);
 		motorSet(MC_LIFT_TR, -liftSpeed);
 
+	//	printf("%u\r\n", getPowerLevelMain());
+
 		// Motors can only be updated once every 20ms, therefore updating at twice the rate for better response time
 		taskDelayUntil(&prevWakeupTime, 10);
 	}

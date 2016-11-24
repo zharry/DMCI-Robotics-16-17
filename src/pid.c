@@ -1,4 +1,4 @@
-// PID Conroller
+// PID Controller
 
 #include "pid.h"
 #include "API.h"

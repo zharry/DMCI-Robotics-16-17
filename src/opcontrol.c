@@ -40,6 +40,11 @@ void operatorControl() {
 
 	unsigned long prevWakeupTime = millis();
 
+	// PID controller variable
+	struct pid_dat arm_pid;
+	
+	initPID(&arm_pid, 0.6, 0, 0);
+
 	/* Stores which joysticks are connected
 	 * 0 - None
 	 * 1 - Only Joystick 1
@@ -117,12 +122,14 @@ void operatorControl() {
 		else
 			motorSet(MC_SUPPORT, 0);
 
-		int liftSpeed = 0;
-		if(liftUp) {
-			liftSpeed = LIFTSPEED;
-		} else if(liftDw) {
-			liftSpeed = -LIFTSPEED;
-		}
+//		int liftSpeed = 0;
+//		if(liftUp) {
+//			liftSpeed = LIFTSPEED;
+//		} else if(liftDw) {
+//			liftSpeed = -LIFTSPEED;
+//		}
+
+		int liftSpeed = MAP_OUTPUT(computePID(MAP_INPUT(joystickGetAnalog(joystickStatus, JOY_RY)), MAP_POT(analogRead(0)), &arm_pid));
 
 		// Lift
 		motorSet(MC_LIFT_BL, liftSpeed);

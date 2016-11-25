@@ -20,8 +20,9 @@
 
 #include <stdbool.h>
 
-// Custom "main.h" header
-#include "main.h"
+#include "../include/API.h"
+#include "../include/constants.h"
+#include "../include/pid.h"
 
 /**
  * Runs the user operator control code.
@@ -42,7 +43,7 @@ void operatorControl() {
 
 	// PID controller variable
 	struct pid_dat arm_pid;
-	
+
 	initPID(&arm_pid, 2, 0.5, 0.02);
 
 	/* Stores which joysticks are connected
@@ -57,21 +58,9 @@ void operatorControl() {
 	if (isJoystickConnected(2))
 		joystickStatus |= 2;
 
-	// Update Robot Status
-//	int robotStatus = RS.AUTO;
-//	if (!isAutonomous()) {
-//		if (isOnline())
-//			robotStatus |= RS.ONLINE;
-//		if (isEnabled())
-//			robotStatus |= RS.ENABLED;
-//	}
-
-	// Robot Control Loop
-	// Safe checking to avoid disqualification
-	// NOPE lies. This checks for ABSOLUTELY NOTHING once it starts.
 	while (1) {
-		
-		if(!isEnabled()) {
+
+		if (!isEnabled()) {
 			delay(20);
 		}
 
@@ -95,8 +84,6 @@ void operatorControl() {
 			// Both joysticks connected, reference as 1 or 2
 			liftUp = joystickGetDigital(1, JOY_RBUM, JOY_DOWN);
 			liftDw = joystickGetDigital(1, JOY_RBUM, JOY_UP);
-		} else if (joystickStatus == 0) {
-			// No Joysticks connected, for debugging operator controlled
 		} else {
 			/* One of Josystick 1 or 2 is connected,
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
@@ -133,16 +120,17 @@ void operatorControl() {
 		else
 			motorSet(MC_SUPPORT, 0);
 
+		int liftSpeed =
+				-MAP_OUTPUT(
+						computePID(
+								((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid
+							)
+				)
+		;
 
-		int liftSpeed = -MAP_OUTPUT(computePID(((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid));
-
-	//	printf("%f\r\n", (MAP_POT(analogRead(1)) + 0.8) / 0.9);
-
-	//	liftSpeed = 0;
-
-		if(liftUp) {
+		if (liftUp) {
 			liftSpeed = LIFTSPEED;
-		} else if(liftDw) {
+		} else if (liftDw) {
 			liftSpeed = -LIFTSPEED;
 		}
 
@@ -154,13 +142,8 @@ void operatorControl() {
 		motorSet(MC_LIFT_MR, -liftSpeed);
 		motorSet(MC_LIFT_TR, -liftSpeed);
 
-	//	printf("%u\r\n", getPowerLevelMain());
-
 		// Motors can only be updated once every 20ms, therefore updating at twice the rate for better response time
 		taskDelayUntil(&prevWakeupTime, 10);
 	}
 
-	// Re-do entire process if it failed to start
-	// Not necessary
-	// operatorControl();
 }

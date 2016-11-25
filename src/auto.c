@@ -19,6 +19,29 @@
 // Custom "main.h" header
 #include "main.h"
 
+double target = 0;
+
+void pidTask() {
+	unsigned long prevWakeupTime = millis();
+
+	struct pid_dat arm_pid;
+
+	initPID(&arm_pid, 2, 0.5, 0.02);
+
+	while(1) {
+		int liftSpeed = -MAP_OUTPUT(computePID((target + 1.0) / 2.0 * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid));
+
+		motorSet(MC_LIFT_ML, liftSpeed);
+		motorSet(MC_LIFT_TL, liftSpeed);
+		motorSet(MC_LIFT_BR, -liftSpeed);
+		motorSet(MC_LIFT_MR, -liftSpeed);
+		motorSet(MC_LIFT_TR, -liftSpeed);
+
+		taskDelayUntil(&prevWakeupTime, 10);
+	}
+
+}
+
 /**
 * Runs the user autonomous code.
 *
@@ -28,6 +51,36 @@
 *
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
+
+int moveX, moveY, rotate;
+void updateMotor() {
+	int L = CAP(moveY + rotate, RANGE_MAX);
+	int R = CAP(moveY - rotate, RANGE_MAX);
+	int C = CAP(moveX, RANGE_MAX);
+	motorSet(MC_WHEEL_L, L);
+	motorSet(MC_WHEEL_R, -R);
+	motorSet(MC_WHEEL_M, -C);
+}
+
 void autonomous() {
+	bool team2 = digitalRead(1);
+	if(!team2) {
+		taskCreate(pidTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+	}
+
+	target = 0;
+
+while(1) {
+
+	motorSet(MC_WHEEL_L, 127);
+
+	//moveY = 127;
+	//updateMotor();
+	//delay(1000);
+	//moveY = 0;
+	//updateMotor();
+	
+	delay(10);
+}
 
 }

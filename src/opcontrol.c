@@ -37,7 +37,11 @@
  */
 
 // ------------------------ CONTROL CODE ------------------------------
+void autonomous();
 void operatorControl() {
+
+	//autonomous();
+	//while(1);
 
 	unsigned long prevWakeupTime = millis();
 
@@ -65,9 +69,9 @@ void operatorControl() {
 			joystickStatus |= 2;
 
 		// Local Variables
-		int moveX = 0, moveY = 0, rotate = 0, arm = 0, liftSpeed;
+		int moveX = 0, moveY = 0, rotate = 0, arm = 0, liftSpeed = 0;
 		int L, R, C;
-		bool liftUp = 0, liftDw = 0, supUp = 0, supDw = 0;
+		bool liftUp = 0, liftDw = 0, supUp = 0, supDw = 0, liftCenter = 0, liftLower = 0;
 
 		// Subteam Definition
 		int team1 = digitalRead(1);
@@ -87,8 +91,11 @@ void operatorControl() {
 			// Both joysticks connected, reference as 1 or 2
 			liftUp = joystickGetDigital(1, JOY_RBUM, JOY_DOWN);
 			liftDw = joystickGetDigital(1, JOY_RBUM, JOY_UP);
+
+			liftCenter = joystickGetDigital(2, JOY_RBUM, JOY_UP);
+			liftLower = joystickGetDigital(2, JOY_RBUM, JOY_DOWN);
 		} else {
-			/* One of Josystick 1 or 2 is connected,
+			/* One of Joystick 1 or 2 is connected,
 			 * arguments requiring a joystick should use {joystickStatus} as the joystick number
 			 * as the numbers assigned match up (reads from the specified joystick)
 			 */
@@ -123,17 +130,26 @@ void operatorControl() {
 		else
 			motorSet(MC_SUPPORT, 0);
 
-		if (team1 == ON)
-			liftSpeed =
-					-MAP_OUTPUT(
-							computePID( ((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid ));
 
+
+		if (team1 == ON) {
+			double loc = ((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8;
+			if(liftCenter) {
+				loc = -0.35;
+			} else if(liftLower) {
+				loc = -0.25;
+			}
+			liftSpeed = -MAP_OUTPUT(computePID(loc, MAP_POT(analogRead(1)), &arm_pid ));
+			
+		}
 		if (liftUp)
-			liftSpeed = team1 == ON ? LIFTSPEED : -LIFTSPEED;
+			liftSpeed = LIFTSPEED;
 		else if (liftDw)
-			liftSpeed = team1 == ON ? -LIFTSPEED : LIFTSPEED;
-		else
-			liftSpeed = team1 == ON ? liftSpeed : 0;
+			liftSpeed = -LIFTSPEED;
+
+		if(team1 != ON) {
+			liftSpeed = -liftSpeed;
+		}
 
 		// Lift
 		motorSet(MC_LIFT_BL, liftSpeed);

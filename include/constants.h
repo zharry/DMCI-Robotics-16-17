@@ -22,9 +22,12 @@
 // Set Teamname string
 #define TEAMNAME "Team2505"
 
+#define ON 0
+#define OFF 1
+
 // Movement Constant
 #define RANGE_MAX 255
-#define LIFTSPEED 32
+#define LIFTSPEED 80
 
 #define CAP(x,l) (x<-l?-l:(x>l?l:x))
 #define CAP1(x) CAP(x,1)

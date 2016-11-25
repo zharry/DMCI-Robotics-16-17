@@ -46,28 +46,31 @@ void operatorControl() {
 
 	initPID(&arm_pid, 2, 0.5, 0.02);
 
-	/* Stores which joysticks are connected
-	 * 0 - None
-	 * 1 - Only Joystick 1
-	 * 2 - Only Joystick 2
-	 * 3 - Both Josticks 1 and 2
-	 */
-	int joystickStatus = 0;
-	if (isJoystickConnected(1))
-		joystickStatus |= 1;
-	if (isJoystickConnected(2))
-		joystickStatus |= 2;
-
 	while (1) {
 
 		if (!isEnabled()) {
 			delay(20);
 		}
 
+		/* Stores which joysticks are connected
+		 * 0 - None
+		 * 1 - Only Joystick 1
+		 * 2 - Only Joystick 2
+		 * 3 - Both Josticks 1 and 2
+		 */
+		int joystickStatus = 0;
+		if (isJoystickConnected(1))
+			joystickStatus |= 1;
+		if (isJoystickConnected(2))
+			joystickStatus |= 2;
+
 		// Local Variables
-		int moveX = 0, moveY = 0, rotate = 0, arm = 0;
+		int moveX = 0, moveY = 0, rotate = 0, arm = 0, liftSpeed;
 		int L, R, C;
 		bool liftUp = 0, liftDw = 0, supUp = 0, supDw = 0;
+
+		// Subteam Definition
+		int team1 = digitalRead(1);
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
@@ -114,25 +117,23 @@ void operatorControl() {
 
 		// Support
 		if (supDw)
-			motorSet(MC_SUPPORT, -32);
+			motorSet(MC_SUPPORT, team1 == ON ? -32 : 32);
 		else if (supUp)
-			motorSet(MC_SUPPORT, 32);
+			motorSet(MC_SUPPORT, team1 == ON ? 32 : -32);
 		else
 			motorSet(MC_SUPPORT, 0);
 
-		int liftSpeed =
-				-MAP_OUTPUT(
-						computePID(
-								((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid
-							)
-				)
-		;
+		if (team1 == ON)
+			liftSpeed =
+					-MAP_OUTPUT(
+							computePID( ((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid ));
 
-		if (liftUp) {
-			liftSpeed = LIFTSPEED;
-		} else if (liftDw) {
-			liftSpeed = -LIFTSPEED;
-		}
+		if (liftUp)
+			liftSpeed = team1 == ON ? LIFTSPEED : -LIFTSPEED;
+		else if (liftDw)
+			liftSpeed = team1 == ON ? -LIFTSPEED : LIFTSPEED;
+		else
+			liftSpeed = team1 == ON ? liftSpeed : 0;
 
 		// Lift
 		motorSet(MC_LIFT_BL, liftSpeed);

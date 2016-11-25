@@ -43,7 +43,7 @@ void operatorControl() {
 	// PID controller variable
 	struct pid_dat arm_pid;
 	
-	initPID(&arm_pid, 0.6, 0, 0);
+	initPID(&arm_pid, 2, 0.5, 0.02);
 
 	/* Stores which joysticks are connected
 	 * 0 - None
@@ -76,13 +76,25 @@ void operatorControl() {
 		}
 
 		// Local Variables
-		int moveX = 0, moveY = 0, rotate = 0;
+		int moveX = 0, moveY = 0, rotate = 0, arm = 0;
 		int L, R, C;
 		bool liftUp = 0, liftDw = 0, supUp = 0, supDw = 0;
 
 		// Get Joystick Values based on Status
 		if (joystickStatus == 3) {
-			// Both Joysticks 1 and 2 are connected and can be referenced
+			// Driving
+			moveX = joystickGetAnalog(1, JOY_LX); // Movement
+			moveY = joystickGetAnalog(1, JOY_LY); // Movement
+			rotate = joystickGetAnalog(1, JOY_RX); // Rotate
+			arm = joystickGetAnalog(2, JOY_RY);
+
+			// Support
+			supUp = joystickGetDigital(1, JOY_LBUM, JOY_DOWN);
+			supDw = joystickGetDigital(1, JOY_LBUM, JOY_UP);
+
+			// Both joysticks connected, reference as 1 or 2
+			liftUp = joystickGetDigital(1, JOY_RBUM, JOY_DOWN);
+			liftDw = joystickGetDigital(1, JOY_RBUM, JOY_UP);
 		} else if (joystickStatus == 0) {
 			// No Joysticks connected, for debugging operator controlled
 		} else {
@@ -103,7 +115,6 @@ void operatorControl() {
 			// Lift
 			liftUp = joystickGetDigital(joystickStatus, JOY_RBUM, JOY_DOWN);
 			liftDw = joystickGetDigital(joystickStatus, JOY_RBUM, JOY_UP);
-
 		}
 
 		// Driving
@@ -112,7 +123,7 @@ void operatorControl() {
 		C = CAP(moveX, RANGE_MAX);
 		motorSet(MC_WHEEL_L, L);
 		motorSet(MC_WHEEL_R, -R);
-		motorSet(MC_WHEEL_M, C);
+		motorSet(MC_WHEEL_M, -C);
 
 		// Support
 		if (supDw)
@@ -122,14 +133,18 @@ void operatorControl() {
 		else
 			motorSet(MC_SUPPORT, 0);
 
-//		int liftSpeed = 0;
-//		if(liftUp) {
-//			liftSpeed = LIFTSPEED;
-//		} else if(liftDw) {
-//			liftSpeed = -LIFTSPEED;
-//		}
 
-		int liftSpeed = MAP_OUTPUT(computePID(MAP_INPUT(joystickGetAnalog(joystickStatus, JOY_RY)), MAP_POT(analogRead(0)), &arm_pid));
+		int liftSpeed = -MAP_OUTPUT(computePID(((MAP_INPUT(arm) + 1.0) / 2.0) * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid));
+
+	//	printf("%f\r\n", (MAP_POT(analogRead(1)) + 0.8) / 0.9);
+
+	//	liftSpeed = 0;
+
+		if(liftUp) {
+			liftSpeed = LIFTSPEED;
+		} else if(liftDw) {
+			liftSpeed = -LIFTSPEED;
+		}
 
 		// Lift
 		motorSet(MC_LIFT_BL, liftSpeed);

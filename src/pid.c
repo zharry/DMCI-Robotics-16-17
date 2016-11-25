@@ -17,7 +17,7 @@ double computePID(double set, double feedback, struct pid_dat *p) {
 	unsigned long now = millis();
 	double dt = (now - p->prevTime) / 1000.0;
 	p->pid_ni += err * dt;
-	double derr = (err = p->pid_nd) / dt;
+	double derr = (err - p->pid_nd) / dt;
 	p->pid_nd = err;
 	p->prevTime = now;
 	return p->kp * err + p->ki * p->pid_ni + p->kd * derr;

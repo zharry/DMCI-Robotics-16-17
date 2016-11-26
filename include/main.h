@@ -46,6 +46,8 @@
 #include "API.h"
 #include "pid.h"
 
+Encoder enc1;
+
 //#define AUTO_DEBUG
 
 // A function prototype looks exactly like its declaration, but with a semicolon instead of

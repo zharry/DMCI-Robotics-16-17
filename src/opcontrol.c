@@ -137,7 +137,7 @@ void operatorControl() {
 			if(liftCenter) {
 				loc = -0.35;
 			} else if(liftLower) {
-				loc = -0.25;
+				loc = -0.45;
 			}
 			liftSpeed = -MAP_OUTPUT(computePID(loc, MAP_POT(analogRead(1)), &arm_pid ));
 			

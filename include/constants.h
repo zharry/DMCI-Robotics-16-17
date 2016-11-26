@@ -25,6 +25,10 @@
 #define ON 0
 #define OFF 1
 
+#define ENC1_TOP 7
+#define ENC1_BOT 11
+#define ENC1_REV false
+
 // Movement Constant
 #define RANGE_MAX 255
 #define LIFTSPEED 80

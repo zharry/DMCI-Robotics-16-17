@@ -19,7 +19,19 @@
 // Custom "main.h" header
 #include "main.h"
 
-double target = 0;
+double targetArm = 0;
+bool armPidEnabled = false;
+
+int moveX, moveY, rotate;
+
+void update() {
+	int L = CAP(moveY + rotate, RANGE_MAX);
+	int R = CAP(moveY - rotate, RANGE_MAX);
+	int C = CAP(moveX, RANGE_MAX);
+	motorSet(MC_WHEEL_L, L);
+	motorSet(MC_WHEEL_R, -R);
+	motorSet(MC_WHEEL_M, -C);
+}
 
 void pidTask() {
 	unsigned long prevWakeupTime = millis();
@@ -29,17 +41,21 @@ void pidTask() {
 	initPID(&arm_pid, 2, 0.5, 0.02);
 
 	while(1) {
-		int liftSpeed = -MAP_OUTPUT(computePID((target + 1.0) / 2.0 * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid));
+		if(armPidEnabled) {
+			int liftSpeed = -MAP_OUTPUT(computePID((targetArm + 1.0) / 2.0 * 0.9 - 0.8, MAP_POT(analogRead(1)), &arm_pid));
+	
+			motorSet(MC_LIFT_ML, liftSpeed);
+			motorSet(MC_LIFT_TL, liftSpeed);
+			motorSet(MC_LIFT_BR, -liftSpeed);
+			motorSet(MC_LIFT_MR, -liftSpeed);
+			motorSet(MC_LIFT_TR, -liftSpeed); 
 
-		motorSet(MC_LIFT_ML, liftSpeed);
-		motorSet(MC_LIFT_TL, liftSpeed);
-		motorSet(MC_LIFT_BR, -liftSpeed);
-		motorSet(MC_LIFT_MR, -liftSpeed);
-		motorSet(MC_LIFT_TR, -liftSpeed);
+		}
+
+		update();
 
 		taskDelayUntil(&prevWakeupTime, 10);
 	}
-
 }
 
 /**
@@ -52,34 +68,39 @@ void pidTask() {
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
 
-int moveX, moveY, rotate;
-
-void updateMotor() {
-	int L = CAP(moveY + rotate, RANGE_MAX);
-	int R = CAP(moveY - rotate, RANGE_MAX);
-	int C = CAP(moveX, RANGE_MAX);
-	motorSet(MC_WHEEL_L, L);
-	motorSet(MC_WHEEL_R, -R);
-	motorSet(MC_WHEEL_M, -C);
-}
-
 void autonomous() {
+
+	unsigned long prevWakeupTime = millis();
+
 	bool team2 = digitalRead(1);
-	if(!team2) {
-		taskCreate(pidTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+
+	armPidEnabled = !team2;
+
+	taskCreate(pidTask, TASK_DEFAULT_STACK_SIZE * 4, NULL, TASK_PRIORITY_DEFAULT);
+
+	targetArm = -100;
+	motorSet(MC_SUPPORT, 32);
+	delay(1000);
+
+	int calib = encoderGet(enc1);
+	struct pid_dat wheel_pid;
+	initPID(&wheel_pid, 0.6, 0, 0);
+	double setDist = 1000;
+
+	targetArm = 0;
+	
+	for(int i = 0; i < 500; ++i) {
+		moveY = computePID(setDist, encoderGet(enc1) - calib, &wheel_pid);
+		taskDelayUntil(&prevWakeupTime, 10);
 	}
 
-    Encoder enc = encoderInit(7, 11, true);
-    int off = encoderGet(enc);
+	setDist = -1000;
+	for(int i = 0; i < 500; ++i) {
+		moveY = computePID(setDist, encoderGet(enc1) - calib, &wheel_pid);
+		taskDelayUntil(&prevWakeupTime, 10);
+	}
 
-    motorSet(MC_WHEEL_L, 127);
-    motorSet(MC_WHEEL_R, -127);
+	moveY = 0;
 
-    off = encoderGet(enc);
-    printf("offset: %d\n\r", off);
-    while (encoderGet(enc) - off < 500) printf("value %d\n\r", encoderGet(enc));
-    
-    motorSet(MC_WHEEL_L, 0);
-    motorSet(MC_WHEEL_R, 0);
     while(true);
 }

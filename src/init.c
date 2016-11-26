@@ -25,6 +25,7 @@
   * This function will be started in kernel mode one time while the VEX Cortex is starting up. As the scheduler is still paused, most API functions will fail.
   * The purpose of this function is solely to set the default pin modes (pinMode()) and port states (digitalWrite()) of limit switches, push buttons, and solenoids. It can also safely configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
   */
+
 void initializeIO() {
 }
 
@@ -39,4 +40,6 @@ void initializeIO() {
 void initialize() {
 	// Update or Set Team Name
 	setTeamName(TEAMNAME);
+
+	enc1 = encoderInit(ENC1_TOP, ENC1_BOT, ENC1_REV);
 }

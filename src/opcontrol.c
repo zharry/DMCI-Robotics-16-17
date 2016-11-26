@@ -40,8 +40,8 @@
 void autonomous();
 void operatorControl() {
 
-	//autonomous();
-	//while(1);
+  //	autonomous();
+  //	while(1);
 
 	unsigned long prevWakeupTime = millis();
 

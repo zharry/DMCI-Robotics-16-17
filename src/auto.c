@@ -53,6 +53,7 @@ void pidTask() {
 */
 
 int moveX, moveY, rotate;
+
 void updateMotor() {
 	int L = CAP(moveY + rotate, RANGE_MAX);
 	int R = CAP(moveY - rotate, RANGE_MAX);
@@ -68,19 +69,17 @@ void autonomous() {
 		taskCreate(pidTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
 	}
 
-	target = 0;
+    Encoder enc = encoderInit(7, 11, true);
+    int off = encoderGet(enc);
 
-while(1) {
+    motorSet(MC_WHEEL_L, 127);
+    motorSet(MC_WHEEL_R, -127);
 
-	motorSet(MC_WHEEL_L, 127);
-
-	//moveY = 127;
-	//updateMotor();
-	//delay(1000);
-	//moveY = 0;
-	//updateMotor();
-	
-	delay(10);
-}
-
+    off = encoderGet(enc);
+    printf("offset: %d\n\r", off);
+    while (encoderGet(enc) - off < 500) printf("value %d\n\r", encoderGet(enc));
+    
+    motorSet(MC_WHEEL_L, 0);
+    motorSet(MC_WHEEL_R, 0);
+    while(true);
 }

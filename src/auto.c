@@ -52,7 +52,7 @@ void pidTask() {
 
 		}
 
-		update();
+		//update();
 
 		taskDelayUntil(&prevWakeupTime, 10);
 	}
@@ -74,33 +74,51 @@ void autonomous() {
 
 	bool team2 = digitalRead(1);
 
-	armPidEnabled = !team2;
+//	armPidEnabled = !team2;
 
-	taskCreate(pidTask, TASK_DEFAULT_STACK_SIZE * 4, NULL, TASK_PRIORITY_DEFAULT);
-
-	targetArm = -100;
-	motorSet(MC_SUPPORT, 32);
-	delay(1000);
-
-	int calib = encoderGet(enc1);
-	struct pid_dat wheel_pid;
-	initPID(&wheel_pid, 0.6, 0, 0);
-	double setDist = 1000;
-
-	targetArm = 0;
-	
-	for(int i = 0; i < 500; ++i) {
-		moveY = computePID(setDist, encoderGet(enc1) - calib, &wheel_pid);
-		taskDelayUntil(&prevWakeupTime, 10);
-	}
-
-	setDist = -1000;
-	for(int i = 0; i < 500; ++i) {
-		moveY = computePID(setDist, encoderGet(enc1) - calib, &wheel_pid);
-		taskDelayUntil(&prevWakeupTime, 10);
-	}
-
+	moveY = 127;
+	update();
+	delay(1500);
 	moveY = 0;
+	update();
+	motorSet(MC_SUPPORT, -127);
+	delay(1000);
+	motorSet(MC_SUPPORT, 0);
 
-    while(true);
+
+
+	//taskCreate(pidTask, TASK_DEFAULT_STACK_SIZE * 4, NULL, TASK_PRIORITY_DEFAULT);
+	
+
+//	targetArm = -0.5;
+//	motorSet(MC_SUPPORT, 32);
+//	delay(1000);
+
+//	Encoder enc1 = encoderInit(5, 6, false);
+
+//	int calib = encoderGet(enc1);
+//	while(1) {
+//		printf("%d\r\n", encoderGet(enc1));
+//		delay(10);
+//	}
+//	struct pid_dat wheel_pid;
+//	initPID(&wheel_pid, 0.6, 0, 0);
+//	double setDist = 1000;
+//
+//	targetArm = 0;
+//	
+//	for(int i = 0; i < 500; ++i) {
+//		moveY = computePID(setDist, encoderGet(enc1) - calib, &wheel_pid);
+//		taskDelayUntil(&prevWakeupTime, 10);
+//	}
+//
+//	setDist = -1000;
+//	for(int i = 0; i < 500; ++i) {
+//		moveY = computePID(setDist, encoderGet(enc1) - calib, &wheel_pid);
+//		taskDelayUntil(&prevWakeupTime, 10);
+//	}
+//
+//	moveY = 0;
+//
+//    while(true);
 }

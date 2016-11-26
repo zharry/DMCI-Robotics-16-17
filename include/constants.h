@@ -25,8 +25,8 @@
 #define ON 0
 #define OFF 1
 
-#define ENC1_TOP 7
-#define ENC1_BOT 11
+#define ENC1_TOP 5
+#define ENC1_BOT 6
 #define ENC1_REV false
 
 // Movement Constant

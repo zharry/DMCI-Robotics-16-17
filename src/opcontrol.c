@@ -37,11 +37,7 @@
  */
 
 // ------------------------ CONTROL CODE ------------------------------
-void autonomous();
 void operatorControl() {
-
-  //	autonomous();
-  //	while(1);
 
 	unsigned long prevWakeupTime = millis();
 
@@ -52,9 +48,9 @@ void operatorControl() {
 
 	while (1) {
 
-		if (!isEnabled()) {
-			delay(20);
-		}
+		//if (!isEnabled()) {
+		//	delay(20);
+		//}
 
 		/* Stores which joysticks are connected
 		 * 0 - None
@@ -130,6 +126,8 @@ void operatorControl() {
 		else
 			motorSet(MC_SUPPORT, 0);
 
+
+		//printf("%f\r\n", MAP_INPUT(arm));
 
 
 		if (team1 == ON) {

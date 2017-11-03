@@ -1,5 +1,3 @@
-// PID controller functions for the VEX robot
-
 #ifndef PID_H_
 #define PID_H_
 

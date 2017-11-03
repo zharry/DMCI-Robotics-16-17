@@ -31,7 +31,7 @@
 
 // Movement Constant
 #define RANGE_MAX 255
-#define LIFTSPEED 80
+#define LIFTSPEED 127
 
 #define CAP(x,l) (x<-l?-l:(x>l?l:x))
 #define CAP1(x) CAP(x,1)

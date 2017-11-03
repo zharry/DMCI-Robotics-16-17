@@ -1,5 +1,3 @@
-// PID Controller
-
 #include "pid.h"
 #include "API.h"
 
